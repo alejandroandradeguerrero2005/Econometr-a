@@ -1,0 +1,98 @@
+---
+title: "Prediccion del gasto de luz en verano"
+author: "Alejandro Andrade"
+format: html
+editor: visual
+---
+
+Importamos y cargamos librerias
+
+```{r}
+install.packages("readxl")
+install.packages("forecast")
+install.packages("ggplot2")
+install.packages("tseries")
+```
+
+```{r}
+library(readxl)
+library(foradecast)
+library(ggplot2)
+library(tseries)
+```
+
+```{r}
+datos <- consumo_electrico_mexico_2018_2025_realista
+
+head(datos)
+```
+```{r}
+datos$fecha <- as.Date(datos$fecha)
+```
+
+Serie de tiempo
+```{r}
+serie <- ts(datos$consumo_gwh,
+            start=c(2018,1),
+            frequency=12)
+```
+
+```{r}
+plot(serie,
+     main="Consumo eléctrico en México (2018-2025)",
+     xlab="Año",
+     ylab="Consumo en GWh",
+     col="blue")
+```
+
+Box Plot
+```{r}
+boxplot(consumo_gwh ~ mes,
+        data=datos,
+        main="Distribución mensual del consumo eléctrico",
+        xlab="Mes",
+        ylab="Consumo GWh",
+        col="lightblue")
+```
+```{r}
+forecast::auto.arima(serie)
+```
+
+```{r}
+summary(modelo_arima)
+```
+
+##Predicción
+```{r}
+modelo_arima <- auto.arima(serie)
+
+pred <- forecast::forecast(modelo_arima, h=12)
+
+plot(pred)
+```
+```{r}
+pred
+```
+
+
+Descomposición de la serie
+```{r}
+descomp <- stl(serie, s.window="periodic")
+
+plot(descomp)
+```
+```{r}
+acf(serie,
+    main="Función de autocorrelación (ACF)")
+```
+
+```{r}
+pacf(serie,
+     main="Función de autocorrelación parcial (PACF)")
+```
+
+
+
+
+
+
